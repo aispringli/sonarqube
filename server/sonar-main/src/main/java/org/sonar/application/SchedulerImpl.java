@@ -39,6 +39,7 @@ import org.sonar.application.process.ManagedProcessLifecycle;
 import org.sonar.application.process.ProcessLifecycleListener;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
+import org.sonar.process.ProcessProperties.Property;
 
 import static org.sonar.application.NodeLifecycle.State.FINALIZE_STOPPING;
 import static org.sonar.application.NodeLifecycle.State.HARD_STOPPING;
@@ -135,9 +136,16 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
   }
 
   private void tryToStartAll() throws InterruptedException {
-    tryToStartEs();
+    if (!enableExternalSearch()) {
+      tryToStartEs();
+    }
     tryToStartWeb();
     tryToStartCe();
+  }
+
+  private boolean enableExternalSearch() {
+    Optional<String> optional = settings.getValue(Property.SEARCH_EXTERNAL_ENABLE.getKey());
+    return optional.filter(s -> Boolean.TRUE.toString().equals(s)).isPresent();
   }
 
   private void tryToStartEs() throws InterruptedException {
@@ -152,7 +160,7 @@ public class SchedulerImpl implements Scheduler, ManagedProcessEventListener, Pr
     if (process == null) {
       return;
     }
-    if (!isEsOperational()) {
+    if (!enableExternalSearch() && !isEsOperational()) {
       if (firstWaitingEsLog.getAndSet(false)) {
         LOG.info("Waiting for Elasticsearch to be up and running");
       }

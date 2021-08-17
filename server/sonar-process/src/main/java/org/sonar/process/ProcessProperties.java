@@ -78,6 +78,7 @@ public class ProcessProperties {
     LOG_CONSOLE("sonar.log.console"),
     LOG_JSON_OUTPUT("sonar.log.jsonOutput", DEFAULT_FALSE),
 
+    SEARCH_EXTERNAL_ENABLE("sonar.search.externalEnable", DEFAULT_FALSE),
     SEARCH_HOST("sonar.search.host"),
     SEARCH_PORT("sonar.search.port"),
     ES_PORT("sonar.es.port"),
